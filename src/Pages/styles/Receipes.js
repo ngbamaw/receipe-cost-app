@@ -30,17 +30,26 @@ const Receipes = styled.div`
                 }
             }
         }
+        .add-btn {
+            color: black;
+            font-size: 48px;
+        }
     }
 
     .receipes-list {
         max-height: 50%;
         overflow-y: auto;
-        .receipe-image {
-            margin-right: 38px;
-        }
-        .receipe-title {
-            span {
-                font-weight: bold;
+        .receipe-item {
+            &.Mui-selected {
+                background-color: #ff7a00;
+            }
+            .receipe-image {
+                margin-right: 38px;
+            }
+            .receipe-title {
+                span {
+                    font-weight: bold;
+                }
             }
         }
     }

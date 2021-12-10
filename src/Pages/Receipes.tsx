@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Avatar, IconButton, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
 import StyledReceipes from './styles/Receipes';
 import AvatarImage from '../assets/img/img-avatar.png';
+import setLongPress from '../useLongPress';
 
 const data = [
     {
@@ -22,6 +23,29 @@ const data = [
 ];
 
 const Receipes: React.FC = () => {
+    const [selectedIndex, setSelectedIndex] = React.useState<number[]>([]);
+    const [isLongPressing, setIsLongPressing] = React.useState(false);
+
+    const onLongPress = (index: number) => () => {
+        if (!isLongPressing) {
+            setSelectedIndex([index]);
+            setIsLongPressing(true);
+        }
+    };
+    const onClick = (index: number) => () => {
+        if (isLongPressing) {
+            if (!selectedIndex.includes(index)) {
+                setSelectedIndex([...selectedIndex, index]);
+            } else {
+                setSelectedIndex(selectedIndex.filter((item) => item !== index));
+            }
+        }
+    };
+    React.useEffect(() => {
+        if (isLongPressing && selectedIndex.length === 0) {
+            setIsLongPressing(false);
+        }
+    }, [selectedIndex, isLongPressing]);
     return (
         <StyledReceipes>
             <header className="header-receipes">
@@ -30,12 +54,16 @@ const Receipes: React.FC = () => {
                     <input type="text" placeholder="Search" />
                 </div>
                 <IconButton className="add-btn">
-                    <AddIcon />
+                    <AddIcon fontSize="large" className="add-icon" />
                 </IconButton>
             </header>
             <List className="receipes-list">
-                {data.map(({ image, title }) => (
-                    <ListItemButton>
+                {data.map(({ image, title }, index) => (
+                    <ListItemButton
+                        {...setLongPress(onLongPress(index), onClick(index))}
+                        selected={isLongPressing && selectedIndex.includes(index)}
+                        className="receipe-item"
+                    >
                         <ListItemAvatar className="receipe-image">
                             <Avatar
                                 sx={{ height: '70px', width: '70px' }}
