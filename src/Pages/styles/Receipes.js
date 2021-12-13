@@ -32,7 +32,9 @@ const Receipes = styled.div`
         }
         .add-btn {
             color: black;
-            font-size: 48px;
+        }
+        .del-btn {
+            color: red;
         }
     }
 
