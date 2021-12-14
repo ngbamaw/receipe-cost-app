@@ -2,8 +2,15 @@ import React from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import MobileStepper from '@mui/material/MobileStepper';
+import Button from '@mui/material/Button';
+import ArrowBack from '@mui/icons-material/ArrowBackIos';
+import ArrowForward from '@mui/icons-material/ArrowForwardIos';
 import { IconButton } from '@mui/material';
-import StyledReceipe from './styles/Receipe';
+import Dialog from '@mui/material/Dialog';
+import Slide from '@mui/material/Slide';
+import { TransitionProps } from '@mui/material/transitions';
+import StyledReceipe, { AddIngredientSection } from './styles/Receipe';
 import AvatarImage from '../assets/img/img-avatar.png';
 
 const data = {
@@ -26,8 +33,44 @@ const data = {
         },
     ],
 };
+
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
 const Receipe: React.FC = () => {
     const { title, img, ingredients } = data;
+    const [open, setOpen] = React.useState(false);
+    const [activeStep, setActiveStep] = React.useState(0);
+
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    React.useEffect(() => {
+        if (activeStep === -1 || activeStep === 3) {
+            setOpen(false);
+            setActiveStep(0);
+        }
+    }, [activeStep]);
+
     return (
         <StyledReceipe>
             <IconButton className="back-btn">
@@ -63,7 +106,7 @@ const Receipe: React.FC = () => {
                         </li>
                     ))}
                     <li className="add-line">
-                        <IconButton className="add-btn">
+                        <IconButton className="add-btn" onClick={handleClickOpen}>
                             <AddIcon fontSize="large" />
                         </IconButton>
                         <p>Ajouter</p>
@@ -75,6 +118,32 @@ const Receipe: React.FC = () => {
                     <p className="price-label">Prix total</p>
                 </div>
             </div>
+
+            <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+                <AddIngredientSection>
+                    <div className="step-1"></div>
+                    <div className="bottom-section">
+                        <IconButton onClick={handleBack} className="btn-stepper">
+                            <ArrowBack />
+                        </IconButton>
+                        <div className="bottom-info">
+                            <p>Ajouter un ingrédient</p>
+                            <MobileStepper
+                                variant="dots"
+                                steps={3}
+                                position="static"
+                                activeStep={activeStep}
+                                sx={{ maxWidth: 400, flexGrow: 1 }}
+                                nextButton={<></>}
+                                backButton={<></>}
+                            />
+                        </div>
+                        <IconButton onClick={handleNext} className="btn-stepper">
+                            <ArrowForward />
+                        </IconButton>
+                    </div>
+                </AddIngredientSection>
+            </Dialog>
         </StyledReceipe>
     );
 };

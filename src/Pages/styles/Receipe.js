@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Receipe = styled.div`
+export const Receipe = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -96,6 +96,31 @@ const Receipe = styled.div`
                 text-align: center;
                 color: #b0b0b0;
             }
+        }
+    }
+`;
+export const AddIngredientSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    .bottom-section {
+        display: flex;
+        width: 100%;
+        justify-content: space-evenly;
+        margin-top: auto;
+        margin-bottom: 24px;
+        .btn-stepper {
+            color: black;
+        }
+        .bottom-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Rosario;
+            font-style: normal;
+            font-weight: bold;
+            font-size: 24px;
+            color: #b0b0b0;
         }
     }
 `;
