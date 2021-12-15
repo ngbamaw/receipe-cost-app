@@ -6,10 +6,11 @@ import MobileStepper from '@mui/material/MobileStepper';
 import Button from '@mui/material/Button';
 import ArrowBack from '@mui/icons-material/ArrowBackIos';
 import ArrowForward from '@mui/icons-material/ArrowForwardIos';
-import { IconButton } from '@mui/material';
+import { IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import SwipeableViews from 'react-swipeable-views';
 import StyledReceipe, { AddIngredientSection } from './styles/Receipe';
 import AvatarImage from '../assets/img/img-avatar.png';
 
@@ -121,7 +122,43 @@ const Receipe: React.FC = () => {
 
             <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
                 <AddIngredientSection>
-                    <div className="step-1"></div>
+                    <SwipeableViews className="swiper" index={activeStep}>
+                        <div className="step-1">
+                            <ul className="ingredient-list">
+                                {ingredients.map((ingredient, index) => (
+                                    <li className="ingredient-item" key={index}>
+                                        <div className="ingredient-label">
+                                            <img
+                                                className="ingredient-image"
+                                                src={ingredient.img}
+                                                alt={ingredient.name}
+                                            />
+                                            <p className="ingredient-name">{ingredient.name}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="step-2">
+                            <ul className="ingredient-list">
+                                {ingredients.map((ingredient, index) => (
+                                    <li className="ingredient-item" key={index}>
+                                        <div className="ingredient-label">
+                                            <img
+                                                className="ingredient-image"
+                                                src={ingredient.img}
+                                                alt={ingredient.name}
+                                            />
+                                            <p className="ingredient-name">{ingredient.name}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="step-3">
+                            <TextField label="Quantité" variant="standard" />
+                        </div>
+                    </SwipeableViews>
                     <div className="bottom-section">
                         <IconButton onClick={handleBack} className="btn-stepper">
                             <ArrowBack />
