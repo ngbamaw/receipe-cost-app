@@ -6,13 +6,16 @@ import Ingredient from './Pages/Ingredient';
 import Ingredients from './Pages/Ingredients';
 import Receipes from './Pages/Receipes';
 import Layout from './Pages/Layout';
+import CreateReceipe from './Pages/CreateReceipe';
 
 const App: React.FC = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route path="receipes" element={<Receipes />}>
+                    <Route path="receipes">
+                        <Route index element={<Receipes />} />
+                        <Route path="new" element={<CreateReceipe />} />
                         <Route path=":receipeId" element={<Receipe />} />
                     </Route>
                     <Route path="ingredients" element={<Ingredients />}>
