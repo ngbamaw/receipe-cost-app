@@ -7,6 +7,7 @@ import Ingredients from './Pages/Ingredients';
 import Receipes from './Pages/Receipes';
 import Layout from './Pages/Layout';
 import CreateReceipe from './Pages/CreateReceipe';
+import EditReceipe from './Pages/EditReceipe';
 
 const App: React.FC = () => {
     return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
                         <Route index element={<Receipes />} />
                         <Route path="new" element={<CreateReceipe />} />
                         <Route path=":receipeId" element={<Receipe />} />
+                        <Route path=":receipeId/edit" element={<EditReceipe />} />
                     </Route>
                     <Route path="ingredients" element={<Ingredients />}>
                         <Route path=":ingredientId" element={<Ingredient />} />
