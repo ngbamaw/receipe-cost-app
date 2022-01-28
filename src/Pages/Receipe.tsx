@@ -3,6 +3,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import StyledReceipe from './styles/Receipe';
 import AvatarImage from '../assets/img/img-avatar.png';
 import AddIngredient from './AddIngredient';
@@ -32,6 +33,8 @@ const Receipe: React.FC = () => {
     const { title, img, ingredients } = data;
     const [open, setOpen] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
+    const navigate = useNavigate();
+    const { receipeId } = useParams();
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -54,13 +57,16 @@ const Receipe: React.FC = () => {
 
     return (
         <StyledReceipe>
-            <IconButton className="back-btn">
+            <IconButton onClick={() => navigate('/receipes')} className="back-btn">
                 <ArrowBackIcon fontSize="large" />
             </IconButton>
             <img className="receipe-image" src={img} alt={title} />
             <header className="receipe-header">
                 <h1 className="receipe-title">{title}</h1>
-                <IconButton className="edit-btn">
+                <IconButton
+                    onClick={() => navigate(`/receipes/${receipeId}/edit`)}
+                    className="edit-btn"
+                >
                     <EditIcon fontSize="large" />
                 </IconButton>
             </header>
