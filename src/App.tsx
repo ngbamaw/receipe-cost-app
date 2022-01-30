@@ -20,8 +20,12 @@ const App: React.FC = () => {
                         <Route path=":receipeId" element={<Receipe />} />
                         <Route path=":receipeId/edit" element={<EditReceipe />} />
                     </Route>
-                    <Route path="ingredients" element={<Ingredients />}>
-                        <Route path=":ingredientId" element={<Ingredient />} />
+                    <Route path="ingredients">
+                        <Route index element={<Ingredients />} />
+                        <Route path=":ingredientId">
+                            <Route index element={<Ingredients />} />
+                            <Route path=":productId" element={<Ingredient />} />
+                        </Route>
                     </Route>
                 </Route>
             </Routes>
