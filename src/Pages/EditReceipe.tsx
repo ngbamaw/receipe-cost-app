@@ -6,46 +6,25 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { Formik, Field, Form, ErrorMessage, FieldArray, FieldInputProps } from 'formik';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Formik, Field, FieldArray } from 'formik';
 import StyledEditReceipe from './styles/EditReceipe';
-import AvatarImage from '../assets/img/img-avatar.png';
-import AddIngredient, { Ingredient } from './AddIngredient';
+import AddIngredient from './AddIngredient';
+import { Receipe as ReceipeType, ReceipeEntry, useReceipeQuery } from '../generated/graphql';
+import { getPrice, getTotalPrice, getUrlForImage } from '../utils';
 
-interface Data {
-    title: string;
-    img: string;
-    ingredients: Ingredient[];
-}
-
-const data: Data = {
-    title: 'Tortilla de patatas',
-    img: AvatarImage,
-    ingredients: [
-        {
-            name: 'Patatas',
-            amount: '1',
-            unit: 'kg',
-            img: AvatarImage,
-            price: '1.50',
-        },
-        {
-            name: 'Patatas',
-            amount: '1',
-            unit: 'kg',
-            img: AvatarImage,
-            price: '1.75',
-        },
-    ],
-};
-
-const Receipe: React.FC = () => {
-    const { title: initialTitle, img, ingredients } = data;
-    const [title, setTitle] = React.useState(initialTitle);
+const EditReceipe: React.FC = () => {
     const [open, setOpen] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
     const input = React.useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const { receipeId } = useParams();
+
+    const { data = {} } = useReceipeQuery({ id: receipeId as string });
+
+    const receipe_entries = data?.receipe?.receipe_entries;
+    const image = data?.receipe?.image?.url || '';
+    const title = data?.receipe?.name || '';
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -59,7 +38,7 @@ const Receipe: React.FC = () => {
         setOpen(true);
     };
 
-    const onSubmit = async (values: Data) => {
+    const onSubmit = async (values: Omit<ReceipeType, 'created_at' | 'updated_at'>) => {
         await new Promise((r) => setTimeout(r, 500));
         console.log(values);
     };
@@ -86,20 +65,20 @@ const Receipe: React.FC = () => {
     }, [activeStep]);
 
     return (
-        <Formik initialValues={data} onSubmit={onSubmit}>
+        <Formik initialValues={data.receipe as ReceipeType} onSubmit={onSubmit} enableReinitialize>
             {({ values }) => (
                 <StyledEditReceipe>
                     <IconButton onClick={() => navigate('/receipes')} className="back-btn">
                         <ArrowBackIcon fontSize="large" />
                     </IconButton>
                     <div className="edit-img">
-                        <img className="receipe-image" src={img} alt={title} />
+                        <img className="receipe-image" src={getUrlForImage(image)} alt={title} />
                         <div className="filter">
                             <EditIcon className="edit-icon" fontSize="large" />
                         </div>
                     </div>
                     <header className="receipe-header">
-                        <Field className="receipe-title" name="title" placeholder="Nom">
+                        <Field className="receipe-title" name="name" placeholder="Nom">
                             {({ field, form: { touched, errors }, meta }: any) => (
                                 <div>
                                     <input
@@ -127,32 +106,42 @@ const Receipe: React.FC = () => {
                         </IconButton>
                     </header>
                     <div className="receipe-ingredients">
-                        <FieldArray name="ingredients">
+                        <FieldArray name="receipe_entries">
                             {({ insert, remove, push }) => (
                                 <ul className="ingredient-list">
-                                    {values.ingredients.length > 0 &&
-                                        values.ingredients.map((ingredient, index) => (
+                                    {values?.receipe_entries?.length &&
+                                        values.receipe_entries.map((entry, index) => (
                                             <li className="ingredient-item" key={index}>
                                                 <div className="ingredient-label">
                                                     <img
                                                         className="ingredient-image"
-                                                        src={ingredient.img}
-                                                        alt={ingredient.name}
+                                                        src={getUrlForImage(
+                                                            entry?.ingredient?.image?.url,
+                                                        )}
+                                                        alt={entry?.ingredient?.name}
                                                     />
                                                     <p className="ingredient-name">
-                                                        {ingredient.name}
+                                                        {entry?.ingredient?.name}
                                                     </p>
                                                 </div>
                                                 <div className="ingredient-amount">
                                                     <span className="ingredient-number">
-                                                        {ingredient.amount}
+                                                        {entry?.quantity}
                                                     </span>
                                                     <span className="ingredient-unit">
-                                                        {ingredient.unit}
+                                                        {entry?.ingredient?.unit}
                                                     </span>
                                                 </div>
                                                 <div className="ingredient-price">
-                                                    <span>{ingredient.price}</span>
+                                                    <span>
+                                                        {getPrice(
+                                                            entry?.ingredient?.products?.[0]
+                                                                ?.price || 1,
+                                                            entry?.quantity,
+                                                            entry?.ingredient?.products?.[0]
+                                                                ?.quantity || 1,
+                                                        )}
+                                                    </span>
                                                     <span>€</span>
                                                 </div>
                                                 <IconButton
@@ -174,7 +163,9 @@ const Receipe: React.FC = () => {
                         </FieldArray>
 
                         <div className="price">
-                            <p className="price-number">25€</p>
+                            <p className="price-number">
+                                {getTotalPrice(values?.receipe_entries as ReceipeEntry[])}€
+                            </p>
                             <p className="price-label">Prix total</p>
                         </div>
                     </div>
@@ -184,7 +175,7 @@ const Receipe: React.FC = () => {
                         handleBack={handleBack}
                         handleNext={handleNext}
                         activeStep={activeStep}
-                        ingredients={ingredients}
+                        receipeEntries={receipe_entries as ReceipeEntry[]}
                     />
                 </StyledEditReceipe>
             )}
@@ -192,4 +183,4 @@ const Receipe: React.FC = () => {
     );
 };
 
-export default Receipe;
+export default EditReceipe;

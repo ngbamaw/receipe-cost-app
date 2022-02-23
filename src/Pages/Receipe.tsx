@@ -5,36 +5,21 @@ import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import StyledReceipe from './styles/Receipe';
-import AvatarImage from '../assets/img/img-avatar.png';
 import AddIngredient from './AddIngredient';
-
-const data = {
-    title: 'Tortilla de patatas',
-    img: AvatarImage,
-    ingredients: [
-        {
-            name: 'Patatas',
-            amount: '1',
-            unit: 'kg',
-            img: AvatarImage,
-            price: '1.50',
-        },
-        {
-            name: 'Patatas',
-            amount: '1',
-            unit: 'kg',
-            img: AvatarImage,
-            price: '1.50',
-        },
-    ],
-};
+import { ReceipeEntry, useReceipeQuery } from '../generated/graphql';
+import { getPrice, getTotalPrice, getUrlForImage } from '../utils';
 
 const Receipe: React.FC = () => {
-    const { title, img, ingredients } = data;
     const [open, setOpen] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
     const navigate = useNavigate();
     const { receipeId } = useParams();
+
+    const { data } = useReceipeQuery({ id: receipeId as string });
+
+    const receipe_entries = data?.receipe?.receipe_entries;
+    const image = data?.receipe?.image?.url || '';
+    const title = data?.receipe?.name || '';
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -60,7 +45,7 @@ const Receipe: React.FC = () => {
             <IconButton onClick={() => navigate('/receipes')} className="back-btn">
                 <ArrowBackIcon fontSize="large" />
             </IconButton>
-            <img className="receipe-image" src={img} alt={title} />
+            <img className="receipe-image" src={getUrlForImage(image)} alt={title} />
             <header className="receipe-header">
                 <h1 className="receipe-title">{title}</h1>
                 <IconButton
@@ -72,22 +57,28 @@ const Receipe: React.FC = () => {
             </header>
             <div className="receipe-ingredients">
                 <ul className="ingredient-list">
-                    {ingredients.map((ingredient, index) => (
+                    {receipe_entries?.map((entry, index) => (
                         <li className="ingredient-item" key={index}>
                             <div className="ingredient-label">
                                 <img
                                     className="ingredient-image"
-                                    src={ingredient.img}
-                                    alt={ingredient.name}
+                                    src={getUrlForImage(entry?.ingredient?.image?.url)}
+                                    alt={entry?.ingredient?.name}
                                 />
-                                <p className="ingredient-name">{ingredient.name}</p>
+                                <p className="ingredient-name">{entry?.ingredient?.name}</p>
                             </div>
                             <div className="ingredient-amount">
-                                <span className="ingredient-number">{ingredient.amount}</span>
-                                <span className="ingredient-unit">{ingredient.unit}</span>
+                                <span className="ingredient-number">{entry?.quantity}</span>
+                                <span className="ingredient-unit">{entry?.ingredient?.unit}</span>
                             </div>
                             <div className="ingredient-price">
-                                <span>{ingredient.price}</span>
+                                <span>
+                                    {getPrice(
+                                        entry?.ingredient?.products?.[0]?.price || 1,
+                                        entry?.quantity,
+                                        entry?.ingredient?.products?.[0]?.quantity || 1,
+                                    )}
+                                </span>
                                 <span>€</span>
                             </div>
                         </li>
@@ -101,7 +92,9 @@ const Receipe: React.FC = () => {
                 </ul>
 
                 <div className="price">
-                    <p className="price-number">25€</p>
+                    <p className="price-number">
+                        {getTotalPrice(receipe_entries as ReceipeEntry[])}€
+                    </p>
                     <p className="price-label">Prix total</p>
                 </div>
             </div>
@@ -111,7 +104,7 @@ const Receipe: React.FC = () => {
                 handleBack={handleBack}
                 handleNext={handleNext}
                 activeStep={activeStep}
-                ingredients={ingredients}
+                receipeEntries={receipe_entries as ReceipeEntry[]}
             />
         </StyledReceipe>
     );
