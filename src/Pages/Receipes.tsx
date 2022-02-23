@@ -8,49 +8,54 @@ import { useNavigate } from 'react-router-dom';
 import StyledReceipes from './styles/Receipes';
 import AvatarImage from '../assets/img/img-avatar.png';
 import setLongPress from '../useLongPress';
+import { useReceipesQuery } from '../generated/graphql';
+import { getUrlForImage } from '../utils';
 
-const data = [
-    {
-        image: AvatarImage,
-        title: 'Tiramisu',
-    },
-    {
-        image: AvatarImage,
-        title: 'Tiramisu',
-    },
-    {
-        image: AvatarImage,
-        title: 'Tiramisu',
-    },
-];
+const getIndex = (element: HTMLElement) => {
+    let current = element;
+    while (!current.dataset.index) {
+        current = current.parentElement as HTMLElement;
+    }
+
+    return parseInt(current.dataset.index);
+};
 
 const Receipes: React.FC = () => {
-    const [selectedIndex, setSelectedIndex] = React.useState<number[]>([]);
+    const [selectedIndexies, setSelectedIndexies] = React.useState<number[]>([]);
     const [isLongPressing, setIsLongPressing] = React.useState(false);
     const navigate = useNavigate();
+    const { data } = useReceipesQuery();
 
-    const onLongPress = (index: number) => () => {
-        if (!isLongPressing) {
-            setSelectedIndex([index]);
-            setIsLongPressing(true);
-        }
-    };
-    const onClick = (index: number) => () => {
+    const onLongPress = React.useCallback(
+        (e) => {
+            const index = getIndex(e.target as HTMLElement);
+            if (!isLongPressing) {
+                setSelectedIndexies([index]);
+                setIsLongPressing(true);
+            }
+        },
+        [isLongPressing],
+    );
+
+    const onClick = (e: any) => {
+        const index = getIndex(e.target as HTMLElement);
         if (isLongPressing) {
-            if (!selectedIndex.includes(index)) {
-                setSelectedIndex([...selectedIndex, index]);
+            if (!selectedIndexies.includes(index)) {
+                setSelectedIndexies([...selectedIndexies, index]);
             } else {
-                setSelectedIndex(selectedIndex.filter((item) => item !== index));
+                setSelectedIndexies(selectedIndexies.filter((item) => item !== index));
             }
         } else {
-            navigate(`/receipes/${index}`);
+            navigate(`/receipes/${data?.receipes?.[index]?.id}`);
         }
     };
+
+    const onLongPressListener = setLongPress(onLongPress, onClick);
     React.useEffect(() => {
-        if (isLongPressing && selectedIndex.length === 0) {
+        if (isLongPressing && selectedIndexies.length === 0) {
             setIsLongPressing(false);
         }
-    }, [selectedIndex, isLongPressing]);
+    }, [selectedIndexies, isLongPressing]);
     return (
         <StyledReceipes>
             <header className="header-receipes">
@@ -63,26 +68,27 @@ const Receipes: React.FC = () => {
                         <DeleteIcon fontSize="large" className="del-icon" />
                     </IconButton>
                 ) : (
-                    <IconButton className="add-btn">
+                    <IconButton onClick={() => navigate('/receipes/new')} className="add-btn">
                         <AddIcon fontSize="large" className="add-icon" />
                     </IconButton>
                 )}
             </header>
             <List className="receipes-list">
-                {data.map(({ image, title }, index) => (
+                {data?.receipes?.map((receipe, index) => (
                     <ListItemButton
-                        {...setLongPress(onLongPress(index), onClick(index))}
-                        selected={isLongPressing && selectedIndex.includes(index)}
+                        {...onLongPressListener}
+                        selected={isLongPressing && selectedIndexies.includes(index)}
                         className="receipe-item"
+                        data-index={index}
                     >
                         <ListItemAvatar className="receipe-image">
                             <Avatar
                                 sx={{ height: '70px', width: '70px' }}
-                                alt={`Avatar n°1`}
-                                src={image}
+                                alt={receipe?.name}
+                                src={getUrlForImage(receipe?.image?.url)}
                             />
                         </ListItemAvatar>
-                        <ListItemText className="receipe-title" primary={title} />
+                        <ListItemText className="receipe-title" primary={receipe?.name} />
                     </ListItemButton>
                 ))}
             </List>
