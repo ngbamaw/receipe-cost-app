@@ -7,11 +7,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import StyledReceipe from './styles/Receipe';
 import AddIngredient from './AddIngredient';
 import { ReceipeEntry, useReceipeQuery } from '../generated/graphql';
-import { getPrice, getTotalPrice, getUrlForImage } from '../utils';
+import { convertUnit, getPrice, getTotalPrice, getUrlForImage } from '../utils';
 
 const Receipe: React.FC = () => {
-    const [open, setOpen] = React.useState(false);
-    const [activeStep, setActiveStep] = React.useState(0);
     const navigate = useNavigate();
     const { receipeId } = useParams();
 
@@ -20,25 +18,6 @@ const Receipe: React.FC = () => {
     const receipe_entries = data?.receipe?.receipe_entries;
     const image = data?.receipe?.image?.url || '';
     const title = data?.receipe?.name || '';
-
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    React.useEffect(() => {
-        if (activeStep === -1 || activeStep === 3) {
-            setOpen(false);
-            setActiveStep(0);
-        }
-    }, [activeStep]);
 
     return (
         <StyledReceipe>
@@ -69,7 +48,9 @@ const Receipe: React.FC = () => {
                             </div>
                             <div className="ingredient-amount">
                                 <span className="ingredient-number">{entry?.quantity}</span>
-                                <span className="ingredient-unit">{entry?.ingredient?.unit}</span>
+                                <span className="ingredient-unit">
+                                    {convertUnit(entry?.ingredient?.unit)}
+                                </span>
                             </div>
                             <div className="ingredient-price">
                                 <span>
@@ -83,12 +64,6 @@ const Receipe: React.FC = () => {
                             </div>
                         </li>
                     ))}
-                    <li className="add-line">
-                        <IconButton className="add-btn" onClick={handleClickOpen}>
-                            <AddIcon fontSize="large" />
-                        </IconButton>
-                        <p>Ajouter</p>
-                    </li>
                 </ul>
 
                 <div className="price">
@@ -98,14 +73,6 @@ const Receipe: React.FC = () => {
                     <p className="price-label">Prix total</p>
                 </div>
             </div>
-            <AddIngredient
-                open={open}
-                handleClose={() => setOpen(false)}
-                handleBack={handleBack}
-                handleNext={handleNext}
-                activeStep={activeStep}
-                receipeEntries={receipe_entries as ReceipeEntry[]}
-            />
         </StyledReceipe>
     );
 };
