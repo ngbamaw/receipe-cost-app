@@ -36,7 +36,7 @@ export const Receipe = styled.div`
             border: none;
             color: black;
             font-weight: bold;
-            font-size: 36px;
+            font-size: 24px;
             text-align: center;
             width: 150px;
             outline: none;
@@ -72,7 +72,7 @@ export const Receipe = styled.div`
                     align-items: center;
                     gap: 24px;
                     font-weight: normal;
-                    font-size: 18px;
+                    font-size: 14px;
                     line-height: 21px;
                     .ingredient-image {
                         width: 55px;
@@ -81,7 +81,7 @@ export const Receipe = styled.div`
                     }
                 }
                 font-weight: bold;
-                font-size: 18px;
+                font-size: 14px;
                 .ingredient-amount {
                     .ingredient-unit {
                         color: #7e7e7e;
@@ -94,7 +94,7 @@ export const Receipe = styled.div`
                 align-items: center;
                 padding: 20px 16px;
                 gap: 24px;
-                font-size: 18px;
+                font-size: 14px;
                 .add-btn {
                     background: #cecece;
                     border-radius: 22px;
@@ -109,11 +109,11 @@ export const Receipe = styled.div`
             margin-bottom: 24px;
             .price-number {
                 font-weight: bold;
-                font-size: 48px;
+                font-size: 36px;
             }
             .price-label {
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 12px;
                 text-align: center;
                 color: #b0b0b0;
             }
