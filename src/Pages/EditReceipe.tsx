@@ -11,11 +11,21 @@ import { Formik, Field, FieldArray } from 'formik';
 import StyledEditReceipe from './styles/EditReceipe';
 import AddIngredient from './AddIngredient';
 import { Receipe as ReceipeType, ReceipeEntry, useReceipeQuery } from '../generated/graphql';
-import { getPrice, getTotalPrice, getUrlForImage } from '../utils';
+import { convertUnit, getPrice, getTotalPrice, getUrlForImage } from '../utils';
+
+const createReceipeEntry = ({
+    ingredient,
+    quantity,
+}: any): Omit<ReceipeEntry, 'created_at' | 'id' | 'updated_at'> => {
+    return {
+        ingredient,
+        quantity,
+    };
+};
 
 const EditReceipe: React.FC = () => {
-    const [open, setOpen] = React.useState(false);
-    const [activeStep, setActiveStep] = React.useState(0);
+    const [openAddIngredient, setOpenAddIngredient] = React.useState(false);
+    const [openPhotoPicker, setOpenPhotoPicker] = React.useState(false);
     const input = React.useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
     const { receipeId } = useParams();
@@ -26,16 +36,8 @@ const EditReceipe: React.FC = () => {
     const image = data?.receipe?.image?.url || '';
     const title = data?.receipe?.name || '';
 
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-
     const handleClickOpen = () => {
-        setOpen(true);
+        setOpenAddIngredient(true);
     };
 
     const onSubmit = async (values: Omit<ReceipeType, 'created_at' | 'updated_at'>) => {
@@ -57,13 +59,6 @@ const EditReceipe: React.FC = () => {
         }
     }, [title]);
 
-    React.useEffect(() => {
-        if (activeStep === -1 || activeStep === 3) {
-            setOpen(false);
-            setActiveStep(0);
-        }
-    }, [activeStep]);
-
     return (
         <Formik initialValues={data.receipe as ReceipeType} onSubmit={onSubmit} enableReinitialize>
             {({ values }) => (
@@ -71,12 +66,12 @@ const EditReceipe: React.FC = () => {
                     <IconButton onClick={() => navigate('/receipes')} className="back-btn">
                         <ArrowBackIcon fontSize="large" />
                     </IconButton>
-                    <div className="edit-img">
+                    <button onClick={() => setOpenPhotoPicker(true)} className="edit-img">
                         <img className="receipe-image" src={getUrlForImage(image)} alt={title} />
                         <div className="filter">
                             <EditIcon className="edit-icon" fontSize="large" />
                         </div>
-                    </div>
+                    </button>
                     <header className="receipe-header">
                         <Field className="receipe-title" name="name" placeholder="Nom">
                             {({ field, form: { touched, errors }, meta }: any) => (
@@ -108,57 +103,68 @@ const EditReceipe: React.FC = () => {
                     <div className="receipe-ingredients">
                         <FieldArray name="receipe_entries">
                             {({ insert, remove, push }) => (
-                                <ul className="ingredient-list">
-                                    {values?.receipe_entries?.length &&
-                                        values.receipe_entries.map((entry, index) => (
-                                            <li className="ingredient-item" key={index}>
-                                                <div className="ingredient-label">
-                                                    <img
-                                                        className="ingredient-image"
-                                                        src={getUrlForImage(
-                                                            entry?.ingredient?.image?.url,
-                                                        )}
-                                                        alt={entry?.ingredient?.name}
-                                                    />
-                                                    <p className="ingredient-name">
-                                                        {entry?.ingredient?.name}
-                                                    </p>
-                                                </div>
-                                                <div className="ingredient-amount">
-                                                    <span className="ingredient-number">
-                                                        {entry?.quantity}
-                                                    </span>
-                                                    <span className="ingredient-unit">
-                                                        {entry?.ingredient?.unit}
-                                                    </span>
-                                                </div>
-                                                <div className="ingredient-price">
-                                                    <span>
-                                                        {getPrice(
-                                                            entry?.ingredient?.products?.[0]
-                                                                ?.price || 1,
-                                                            entry?.quantity,
-                                                            entry?.ingredient?.products?.[0]
-                                                                ?.quantity || 1,
-                                                        )}
-                                                    </span>
-                                                    <span>€</span>
-                                                </div>
-                                                <IconButton
-                                                    onClick={() => remove(index)}
-                                                    className="del-btn"
-                                                >
-                                                    <DeleteIcon fontSize="large" />
-                                                </IconButton>
-                                            </li>
-                                        ))}
-                                    <li className="add-line">
-                                        <IconButton className="add-btn" onClick={handleClickOpen}>
-                                            <AddIcon fontSize="large" />
-                                        </IconButton>
-                                        <p>Ajouter</p>
-                                    </li>
-                                </ul>
+                                <>
+                                    <ul className="ingredient-list">
+                                        {values?.receipe_entries?.length &&
+                                            values.receipe_entries.map((entry, index) => (
+                                                <li className="ingredient-item" key={index}>
+                                                    <div className="ingredient-label">
+                                                        <img
+                                                            className="ingredient-image"
+                                                            src={getUrlForImage(
+                                                                entry?.ingredient?.image?.url,
+                                                            )}
+                                                            alt={entry?.ingredient?.name}
+                                                        />
+                                                        <p className="ingredient-name">
+                                                            {entry?.ingredient?.name}
+                                                        </p>
+                                                    </div>
+                                                    <div className="ingredient-amount">
+                                                        <span className="ingredient-number">
+                                                            {entry?.quantity}
+                                                        </span>
+                                                        <span className="ingredient-unit">
+                                                            {convertUnit(entry?.ingredient?.unit)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="ingredient-price">
+                                                        <span>
+                                                            {getPrice(
+                                                                entry?.ingredient?.products?.[0]
+                                                                    ?.price || 1,
+                                                                entry?.quantity,
+                                                                entry?.ingredient?.products?.[0]
+                                                                    ?.quantity || 1,
+                                                            )}
+                                                        </span>
+                                                        <span>€</span>
+                                                    </div>
+                                                    <IconButton
+                                                        onClick={() => remove(index)}
+                                                        className="del-btn"
+                                                    >
+                                                        <DeleteIcon fontSize="large" />
+                                                    </IconButton>
+                                                </li>
+                                            ))}
+                                        <li className="add-line">
+                                            <IconButton
+                                                className="add-btn"
+                                                onClick={handleClickOpen}
+                                            >
+                                                <AddIcon fontSize="large" />
+                                            </IconButton>
+                                            <p>Ajouter</p>
+                                        </li>
+                                    </ul>
+                                    <AddIngredient
+                                        open={openAddIngredient}
+                                        onClose={() => setOpenAddIngredient(false)}
+                                        receipeEntries={receipe_entries as ReceipeEntry[]}
+                                        onFinished={(value) => push(createReceipeEntry(value))}
+                                    />
+                                </>
                             )}
                         </FieldArray>
 
@@ -169,14 +175,6 @@ const EditReceipe: React.FC = () => {
                             <p className="price-label">Prix total</p>
                         </div>
                     </div>
-                    <AddIngredient
-                        open={open}
-                        handleClose={() => setOpen(false)}
-                        handleBack={handleBack}
-                        handleNext={handleNext}
-                        activeStep={activeStep}
-                        receipeEntries={receipe_entries as ReceipeEntry[]}
-                    />
                 </StyledEditReceipe>
             )}
         </Formik>
