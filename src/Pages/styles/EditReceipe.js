@@ -1,7 +1,7 @@
 import { Form } from 'formik';
 import styled from 'styled-components';
 
-export const Receipe = styled(Form)`
+export const EditReceipe = styled(Form)`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,8 +9,8 @@ export const Receipe = styled(Form)`
     overflow: hidden;
     .back-btn {
         align-self: flex-start;
-        margin-top: 24px;
-        margin-left: 24px;
+        margin-top: 18px;
+        margin-left: 18px;
         color: black;
     }
     .edit-img {
@@ -19,11 +19,12 @@ export const Receipe = styled(Form)`
         border-radius: 50%;
         position: relative;
         overflow: hidden;
+        margin-bottom: 18px;
+        border: none;
         .receipe-image {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            margin-bottom: 32px;
         }
         &:hover {
             cursor: pointer;
@@ -56,7 +57,7 @@ export const Receipe = styled(Form)`
             border: none;
             color: black;
             font-weight: bold;
-            font-size: 36px;
+            font-size: 24px;
             text-align: center;
             width: 150px;
             outline: none;
@@ -98,7 +99,7 @@ export const Receipe = styled(Form)`
                     align-items: center;
                     gap: 24px;
                     font-weight: normal;
-                    font-size: 18px;
+                    font-size: 14px;
                     line-height: 21px;
                     .ingredient-image {
                         width: 55px;
@@ -107,7 +108,7 @@ export const Receipe = styled(Form)`
                     }
                 }
                 font-weight: bold;
-                font-size: 18px;
+                font-size: 14px;
                 .ingredient-amount {
                     .ingredient-unit {
                         color: #7e7e7e;
@@ -124,7 +125,7 @@ export const Receipe = styled(Form)`
                 align-items: center;
                 padding: 20px 16px;
                 gap: 24px;
-                font-size: 18px;
+                font-size: 14px;
                 .add-btn {
                     background: #cecece;
                     border-radius: 22px;
@@ -139,11 +140,11 @@ export const Receipe = styled(Form)`
             margin-bottom: 24px;
             .price-number {
                 font-weight: bold;
-                font-size: 48px;
+                font-size: 36px;
             }
             .price-label {
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 12px;
                 text-align: center;
                 color: #b0b0b0;
             }
@@ -240,4 +241,4 @@ export const AddIngredientSection = styled.div`
     }
 `;
 
-export default Receipe;
+export default EditReceipe;

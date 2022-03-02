@@ -8,8 +8,8 @@ export const Receipe = styled.div`
     overflow: hidden;
     .back-btn {
         align-self: flex-start;
-        margin-top: 24px;
-        margin-left: 24px;
+        margin-top: 18px;
+        margin-left: 18px;
         color: black;
     }
     .receipe-image {
@@ -22,7 +22,7 @@ export const Receipe = styled.div`
         display: flex;
         align-items: center;
         position: relative;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
         .edit-btn {
             color: black;
             position: absolute;
@@ -51,7 +51,7 @@ export const Receipe = styled.div`
                     align-items: center;
                     gap: 24px;
                     font-weight: normal;
-                    font-size: 18px;
+                    font-size: 14px;
                     line-height: 21px;
                     .ingredient-image {
                         width: 55px;
@@ -60,7 +60,7 @@ export const Receipe = styled.div`
                     }
                 }
                 font-weight: bold;
-                font-size: 18px;
+                font-size: 14px;
                 .ingredient-amount {
                     .ingredient-unit {
                         color: #7e7e7e;
@@ -73,7 +73,7 @@ export const Receipe = styled.div`
                 align-items: center;
                 padding: 20px 16px;
                 gap: 24px;
-                font-size: 18px;
+                font-size: 14px;
                 .add-btn {
                     background: #cecece;
                     border-radius: 22px;
@@ -88,11 +88,11 @@ export const Receipe = styled.div`
             margin-bottom: 24px;
             .price-number {
                 font-weight: bold;
-                font-size: 48px;
+                font-size: 36px;
             }
             .price-label {
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 12px;
                 text-align: center;
                 color: #b0b0b0;
             }
@@ -118,7 +118,7 @@ export const AddIngredientSection = styled.div`
                 align-items: center;
                 gap: 24px;
                 font-weight: normal;
-                font-size: 18px;
+                font-size: 14px;
                 line-height: 21px;
                 .ingredient-image {
                     width: 55px;
@@ -127,7 +127,7 @@ export const AddIngredientSection = styled.div`
                 }
             }
             font-weight: bold;
-            font-size: 18px;
+            font-size: 14px;
         }
     }
     .swiper {
@@ -139,7 +139,6 @@ export const AddIngredientSection = styled.div`
         }
         .step-3 {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
@@ -153,6 +152,16 @@ export const AddIngredientSection = styled.div`
             .MuiInput-underline:after {
                 border-bottom: 2px solid #ff7a00;
             }
+            .amount-type-container {
+                width: 70px;
+                .MuiOutlinedInput-root {
+                    border-radius: 15px;
+                }
+            }
+            .amount-value {
+                width: 100px;
+                margin-right: 12px;
+            }
         }
     }
     .bottom-section {
@@ -161,6 +170,9 @@ export const AddIngredientSection = styled.div`
         justify-content: space-evenly;
         margin-top: auto;
         margin-bottom: 24px;
+        .MuiMobileStepper-dotActive {
+            background-color: #ff7a00;
+        }
         .btn-stepper {
             color: black;
         }
