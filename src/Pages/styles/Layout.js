@@ -20,7 +20,7 @@ const Layout = styled.div`
             font-family: Roboto;
             font-style: normal;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 14px;
             text-decoration: none;
             color: black;
             text-align: center;
