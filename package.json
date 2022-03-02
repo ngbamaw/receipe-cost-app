@@ -3,6 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@graphql-codegen/cli": "^2.6.1",
+        "@graphql-codegen/typescript-react-query": "^3.5.3",
         "@mui/icons-material": "^5.2.0",
         "@mui/material": "^5.2.2",
         "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
@@ -15,8 +17,12 @@
         "@types/react-dom": "^17.0.0",
         "classnames": "^2.3.1",
         "formik": "^2.2.9",
+        "graphql": "^16.3.0",
+        "graphql-request": "^4.0.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
+        "react-image-crop": "^9.1.1",
+        "react-query": "^3.34.15",
         "react-router-dom": "^6.0.2",
         "react-scripts": "4.0.3",
         "react-swipeable-views": "^0.14.0",
@@ -33,7 +39,8 @@
         "test": "react-app-rewired test --env=jsdom",
         "eject": "react-scripts eject",
         "lint": "eslint --ext .js,.jsx,.ts,.tsx src --color",
-        "format": "prettier --write src/**/*.{js,jsx,ts,tsx,scss,css,json}"
+        "format": "prettier --write src/**/*.{js,jsx,ts,tsx,scss,css,json}",
+        "genql": "graphql-codegen --config codegen.yml"
     },
     "eslintConfig": {
         "extends": [
@@ -54,6 +61,11 @@
         ]
     },
     "devDependencies": {
+        "@graphql-codegen/cli": "2.6.1",
+        "@graphql-codegen/introspection": "2.1.1",
+        "@graphql-codegen/typescript": "^2.4.3",
+        "@graphql-codegen/typescript-operations": "^2.3.0",
+        "@graphql-codegen/typescript-react-apollo": "3.2.6",
         "@types/react-router-dom": "^5.3.2",
         "@types/react-swipeable-views": "^0.13.1",
         "@typescript-eslint/eslint-plugin": "^5.6.0",
