@@ -1,0 +1,99 @@
+query receipe($id: ID!) {
+    receipe(id: $id) {
+        ...getReceipe
+    }
+}
+
+query receipes {
+    receipes {
+        id
+        name
+        image {
+            url
+        }
+    }
+}
+
+query ingredients {
+    ingredients {
+        id
+        name
+        image {
+            id
+            url
+        }
+        unit
+        products(where: { favorite: true }) {
+            id
+            price
+            quantity
+        }
+    }
+}
+
+mutation upload($file: Upload!) {
+    upload(file: $file) {
+        url
+    }
+}
+
+mutation updateReceipe($data: updateReceipeInput) {
+    updateReceipe(input: $data) {
+        receipe {
+            id
+        }
+    }
+}
+mutation createReceipe($data: createReceipeInput) {
+    createReceipe(input: $data) {
+        receipe {
+            id
+        }
+    }
+}
+
+mutation deleteReceipe($id: ID!) {
+    deleteReceipe(input: { where: { id: $id } }) {
+        receipe {
+            ...getReceipe
+        }
+    }
+}
+mutation deleteIngredient($id: ID!) {
+    deleteIngredient(input: { where: { id: $id } }) {
+        ingredient {
+            id
+        }
+    }
+}
+mutation deleteProduct($id: ID!) {
+    deleteProduct(input: { where: { id: $id } }) {
+        product {
+            id
+        }
+    }
+}
+
+fragment getReceipe on Receipe {
+    id
+    name
+    image {
+        url
+    }
+    receipe_entries {
+        id
+        ingredient {
+            id
+            name
+            image {
+                url
+            }
+            unit
+            products(where: { favorite: true }) {
+                price
+                quantity
+            }
+        }
+        quantity
+    }
+}
