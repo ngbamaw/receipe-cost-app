@@ -11,7 +11,8 @@ import { Formik, Field, FieldArray } from 'formik';
 import StyledEditReceipe from './styles/EditReceipe';
 import AddIngredient from './AddIngredient';
 import { Receipe as ReceipeType, ReceipeEntry, useReceipeQuery } from '../generated/graphql';
-import { convertUnit, getPrice, getTotalPrice, getUrlForImage } from '../utils';
+import { convertUnit, getPrice, getTotalPrice, getUrlForImage, useUploadMutation } from '../utils';
+import PicturePicker, { Picture } from './PicturePicker';
 
 const createReceipeEntry = ({
     ingredient,
@@ -26,13 +27,15 @@ const createReceipeEntry = ({
 const EditReceipe: React.FC = () => {
     const [openAddIngredient, setOpenAddIngredient] = React.useState(false);
     const [openPhotoPicker, setOpenPhotoPicker] = React.useState(false);
+    const [newPicture, setNewPicture] = React.useState<Picture>();
     const input = React.useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
     const { receipeId } = useParams();
 
     const { data = {} } = useReceipeQuery({ id: receipeId as string });
+    const upload = useUploadMutation();
 
-    const receipe_entries = data?.receipe?.receipe_entries;
+    const receipeEntries = data?.receipe?.receipe_entries;
     const image = data?.receipe?.image?.url || '';
     const title = data?.receipe?.name || '';
 
@@ -59,15 +62,28 @@ const EditReceipe: React.FC = () => {
         }
     }, [title]);
 
+    const onPicture = async (picture: Picture) => {
+        setNewPicture(picture);
+    };
+
     return (
         <Formik initialValues={data.receipe as ReceipeType} onSubmit={onSubmit} enableReinitialize>
             {({ values }) => (
                 <StyledEditReceipe>
+                    <PicturePicker
+                        onPicture={onPicture}
+                        open={openPhotoPicker}
+                        onClose={() => setOpenPhotoPicker(false)}
+                    />
                     <IconButton onClick={() => navigate('/receipes')} className="back-btn">
                         <ArrowBackIcon fontSize="large" />
                     </IconButton>
                     <button onClick={() => setOpenPhotoPicker(true)} className="edit-img">
-                        <img className="receipe-image" src={getUrlForImage(image)} alt={title} />
+                        <img
+                            className="receipe-image"
+                            src={newPicture?.src || getUrlForImage(image)}
+                            alt={title}
+                        />
                         <div className="filter">
                             <EditIcon className="edit-icon" fontSize="large" />
                         </div>
@@ -161,7 +177,7 @@ const EditReceipe: React.FC = () => {
                                     <AddIngredient
                                         open={openAddIngredient}
                                         onClose={() => setOpenAddIngredient(false)}
-                                        receipeEntries={receipe_entries as ReceipeEntry[]}
+                                        receipeEntries={receipeEntries as ReceipeEntry[]}
                                         onFinished={(value) => push(createReceipeEntry(value))}
                                     />
                                 </>
