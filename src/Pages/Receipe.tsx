@@ -1,11 +1,9 @@
 import React from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import StyledReceipe from './styles/Receipe';
-import AddIngredient from './AddIngredient';
 import { ReceipeEntry, useReceipeQuery } from '../generated/graphql';
 import { convertUnit, getPrice, getTotalPrice, getUrlForImage } from '../utils';
 
@@ -15,7 +13,7 @@ const Receipe: React.FC = () => {
 
     const { data } = useReceipeQuery({ id: receipeId as string });
 
-    const receipe_entries = data?.receipe?.receipe_entries;
+    const receipeEntries = data?.receipe?.receipe_entries;
     const image = data?.receipe?.image?.url || '';
     const title = data?.receipe?.name || '';
 
@@ -36,7 +34,7 @@ const Receipe: React.FC = () => {
             </header>
             <div className="receipe-ingredients">
                 <ul className="ingredient-list">
-                    {receipe_entries?.map((entry, index) => (
+                    {receipeEntries?.map((entry, index) => (
                         <li className="ingredient-item" key={index}>
                             <div className="ingredient-label">
                                 <img
@@ -68,7 +66,7 @@ const Receipe: React.FC = () => {
 
                 <div className="price">
                     <p className="price-number">
-                        {getTotalPrice(receipe_entries as ReceipeEntry[])}€
+                        {getTotalPrice(receipeEntries as ReceipeEntry[])}€
                     </p>
                     <p className="price-label">Prix total</p>
                 </div>

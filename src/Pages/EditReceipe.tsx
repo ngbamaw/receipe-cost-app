@@ -11,18 +11,8 @@ import { Formik, Field, FieldArray } from 'formik';
 import StyledEditReceipe from './styles/EditReceipe';
 import AddIngredient from './AddIngredient';
 import { Receipe as ReceipeType, ReceipeEntry, useReceipeQuery } from '../generated/graphql';
-import { convertUnit, getPrice, getTotalPrice, getUrlForImage, useUploadMutation } from '../utils';
+import { convertUnit, getPrice, getTotalPrice, getUrlForImage } from '../utils';
 import PicturePicker, { Picture } from './PicturePicker';
-
-const createReceipeEntry = ({
-    ingredient,
-    quantity,
-}: any): Omit<ReceipeEntry, 'created_at' | 'id' | 'updated_at'> => {
-    return {
-        ingredient,
-        quantity,
-    };
-};
 
 const EditReceipe: React.FC = () => {
     const [openAddIngredient, setOpenAddIngredient] = React.useState(false);
@@ -33,7 +23,6 @@ const EditReceipe: React.FC = () => {
     const { receipeId } = useParams();
 
     const { data = {} } = useReceipeQuery({ id: receipeId as string });
-    const upload = useUploadMutation();
 
     const receipeEntries = data?.receipe?.receipe_entries;
     const image = data?.receipe?.image?.url || '';
@@ -178,7 +167,7 @@ const EditReceipe: React.FC = () => {
                                         open={openAddIngredient}
                                         onClose={() => setOpenAddIngredient(false)}
                                         receipeEntries={receipeEntries as ReceipeEntry[]}
-                                        onFinished={(value) => push(createReceipeEntry(value))}
+                                        onFinished={(value) => push(value)}
                                     />
                                 </>
                             )}
