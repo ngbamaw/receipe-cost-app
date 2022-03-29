@@ -3,7 +3,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
-import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { FormControl, IconButton, MenuItem, Select, TextField } from '@mui/material';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import StyledEditProduct from './styles/EditProduct';
 import {
@@ -16,7 +16,7 @@ import {
 } from '../generated/graphql';
 import { Field, Formik } from 'formik';
 import PicturePicker, { Picture } from './PicturePicker';
-import { getUrlForImage, useUploadMutation } from '../utils';
+import { convertUnit, getUrlForImage, useUploadMutation } from '../utils';
 import AddIcon from '@mui/icons-material/Add';
 
 const emptyProduct: Partial<Product> = {
@@ -31,7 +31,6 @@ const EditProduct: React.FC = () => {
     const [openPhotoPicker, setOpenPhotoPicker] = React.useState(false);
     const [newPicture, setNewPicture] = React.useState<Picture>();
     const navigate = useNavigate();
-    const location = useLocation();
     const { ingredientId, productId } = useParams();
     const { data: dataProduct } = useProductQuery(
         { id: productId as string },
@@ -128,7 +127,7 @@ const EditProduct: React.FC = () => {
 
                         {dataBrands && (
                             <Field name="brand.id">
-                                {({ field, form: { touched, errors }, meta }: any) => (
+                                {({ field }: any) => (
                                     <FormControl className="amount-type-container">
                                         <Select label="Type" variant="standard" {...field}>
                                             {dataBrands?.brands?.map((brand) => (
@@ -148,7 +147,7 @@ const EditProduct: React.FC = () => {
                     <div className="info">
                         <p className="info-label">Prix :</p>
                         <Field name="price">
-                            {({ field, form: { touched, errors }, meta }: any) => (
+                            {({ field }: any) => (
                                 <TextField {...field} className="info-value" variant="standard" />
                             )}
                         </Field>
@@ -158,7 +157,7 @@ const EditProduct: React.FC = () => {
                         <p className="info-label">Magasin :</p>
                         {dataStores && (
                             <Field name="store.id">
-                                {({ field, form: { touched, errors }, meta }: any) => (
+                                {({ field }: any) => (
                                     <FormControl className="amount-type-container">
                                         <Select label="Type" variant="standard" {...field}>
                                             {dataStores?.stores?.map((store) => (
@@ -178,10 +177,11 @@ const EditProduct: React.FC = () => {
                     <div className="info">
                         <p className="info-label">Quantité :</p>
                         <Field name="quantity">
-                            {({ field, form: { touched, errors }, meta }: any) => (
+                            {({ field }: any) => (
                                 <TextField {...field} className="info-value" variant="standard" />
                             )}
                         </Field>
+                        {convertUnit(values.ingredient?.unit)}
                     </div>
 
                     <div className="btns-action">
