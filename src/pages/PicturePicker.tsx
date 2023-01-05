@@ -22,22 +22,6 @@ const isReady = async (image: HTMLImageElement) => {
         };
     });
 };
-const toDataURL = (url: string) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
-    return new Promise<string>((resolve) => {
-        xhr.onload = () => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                resolve(reader.result as string);
-            };
-            reader.readAsDataURL(xhr.response);
-        };
-    });
-};
 
 async function getCroppedImg(image: HTMLImageElement, crop: Crop): Promise<Picture> {
     const canvas = document.createElement('canvas');

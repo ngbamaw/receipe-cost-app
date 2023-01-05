@@ -1,0 +1,42 @@
+query product($id: ID!) {
+    product(id: $id) {
+        price
+        quantity
+        ingredient {
+            unit
+        }
+        brand {
+            id
+            name
+        }
+        store {
+            id
+            name
+        }
+        image {
+            url
+        }
+    }
+}
+
+mutation createProduct($data: createProductInput) {
+    createProduct(input: $data) {
+        product {
+            id
+        }
+    }
+}
+mutation updateProduct($data: updateProductInput) {
+    updateProduct(input: $data) {
+        product {
+            id
+        }
+    }
+}
+mutation deleteProduct($id: ID!) {
+    deleteProduct(input: { where: { id: $id } }) {
+        product {
+            id
+        }
+    }
+}

@@ -17,6 +17,12 @@ import {
     Select,
     MenuItem,
     InputLabel,
+    DialogTitle,
+    DialogContent,
+    Dialog,
+    DialogContentText,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
@@ -26,9 +32,13 @@ import {
     useIngredientsQuery,
     useCreateIngredientMutation,
     EnumIngredientUnit,
+    useDeleteIngredientMutation,
+    Ingredient,
+    DeleteIngredientMutation,
 } from '../generated/graphql';
 import { getUrlForImage, useUploadMutation } from '../utils';
 import PicturePicker, { Picture } from './PicturePicker';
+import AlertDialog from '../components/AlertDialog';
 
 const getIndex = (element: HTMLElement) => {
     let current = element;
@@ -39,41 +49,47 @@ const getIndex = (element: HTMLElement) => {
     return parseInt(current.dataset.index);
 };
 
+const useDeleteIngredients = () => {
+    const [data, setData] = React.useState<DeleteIngredientMutation[]>();
+    const [error, setError] = React.useState();
+    const [loading, setLoading] = React.useState(false);
+
+    const deleteIngredient = useDeleteIngredientMutation();
+
+    const mutate = (ingredients: Ingredient[]) => {
+        setLoading(true);
+        Promise.all(
+            ingredients.map((ingredient) =>
+                deleteIngredient.mutateAsync({ id: ingredient?.id as string }),
+            ),
+        )
+            .then((result) => {
+                setLoading(false);
+                setData(result);
+            })
+            .catch((err) => {
+                console.error({ err });
+                setError(err);
+            });
+    };
+    return { mutate, data, error, loading };
+};
+
 const Ingredients: React.FC = () => {
     const [selectedIndexies, setSelectedIndexies] = React.useState<number[]>([]);
     const [isLongPressing, setIsLongPressing] = React.useState(false);
     const [newIngredient, setNewIngredient] = React.useState('');
     const [unit, setUnit] = React.useState<EnumIngredientUnit>(EnumIngredientUnit.Gram);
     const [openPhotoPicker, setOpenPhotoPicker] = React.useState(false);
+    const [openAlert, setOpenAlert] = React.useState(false);
+    const [openNewIngredient, setOpenNewIngredient] = React.useState(false);
     const [newPicture, setNewPicture] = React.useState<Picture>();
     const navigate = useNavigate();
-    const location = useLocation();
     const { data } = useIngredientsQuery();
     const { ingredientId } = useParams();
     const createIngredient = useCreateIngredientMutation();
     const upload = useUploadMutation();
-
-    /*
-    const onLongPress = (index: number) => () => {
-        if (!isLongPressing) {
-            setSelectedIndex([index]);
-            setIsLongPressing(true);
-        }
-    };
-
-
-    const onClick = (index: number) => () => {
-        if (isLongPressing) {
-            if (!selectedIndex.includes(index)) {
-                setSelectedIndex([...selectedIndex, index]);
-            } else {
-                setSelectedIndex(selectedIndex.filter((item) => item !== index));
-            }
-        } else {
-            navigate(`${location.pathname}/${index}`);
-        }
-    };
-    */
+    const deleteIngredients = useDeleteIngredients();
 
     const onPicture = async (picture: Picture) => {
         setNewPicture(picture);
@@ -89,7 +105,20 @@ const Ingredients: React.FC = () => {
         },
         [isLongPressing],
     );
+    const onDelete = React.useCallback(async () => {
+        deleteIngredients.mutate(
+            selectedIndexies.map((index) => data?.ingredients?.[index]) as Ingredient[],
+        );
+        setOpenAlert(false);
+    }, [selectedIndexies, data, deleteIngredients]);
 
+    const handleClickOpen = () => {
+        setOpenAlert(true);
+    };
+
+    const handleClose = () => {
+        setOpenAlert(false);
+    };
     const onClick = (e: any) => {
         const index = getIndex(e.target as HTMLElement);
         if (isLongPressing) {
@@ -99,7 +128,7 @@ const Ingredients: React.FC = () => {
                 setSelectedIndexies(selectedIndexies.filter((item) => item !== index));
             }
         } else {
-            navigate(`${location.pathname}/${data?.ingredients?.[index]?.id}`);
+            navigate(`${data?.ingredients?.[index]?.id}`);
         }
     };
     const onLongPressListener = setLongPress(onLongPress, onClick);
@@ -129,69 +158,82 @@ const Ingredients: React.FC = () => {
                 open={openPhotoPicker}
                 onClose={() => setOpenPhotoPicker(false)}
             />
+            <Dialog
+                open={openNewIngredient}
+                onClose={() => setOpenNewIngredient(false)}
+                PaperProps={{
+                    sx: {
+                        alignItems: 'center',
+                        gap: 3,
+                        p: 2,
+                    },
+                }}
+            >
+                <IconButton onClick={() => setOpenPhotoPicker(true)}>
+                    {newPicture ? (
+                        <Avatar sx={{ height: '70px', width: '70px' }} src={newPicture.src} />
+                    ) : (
+                        <Avatar sx={{ height: '70px', width: '70px' }}>
+                            <AddAPhotoIcon fontSize="large" />
+                        </Avatar>
+                    )}
+                </IconButton>
+                <TextField
+                    variant="standard"
+                    label="Nouvelle ingredient"
+                    value={newIngredient}
+                    onChange={(e) => setNewIngredient(e.target.value)}
+                />
+                <FormControl className="amount-type-container">
+                    <InputLabel id="amount-type-label">Type</InputLabel>
+                    <Select
+                        value={unit}
+                        label="Type"
+                        onChange={(event) => setUnit(event.target.value as EnumIngredientUnit)}
+                    >
+                        <MenuItem value={EnumIngredientUnit.Liter}>Liquide</MenuItem>
+                        <MenuItem value={EnumIngredientUnit.Gram}>Solide</MenuItem>
+                        <MenuItem value={EnumIngredientUnit.Unit}>Unité</MenuItem>
+                    </Select>
+                </FormControl>
+                <div className="actions-section">
+                    <IconButton className="validate-btn" onClick={onCreateIngredient}>
+                        <CheckIcon fontSize="large" />
+                    </IconButton>
+                    <IconButton className="cancel-btn" onClick={() => setOpenNewIngredient(false)}>
+                        <CloseIcon fontSize="large" />
+                    </IconButton>
+                </div>
+            </Dialog>
+            <AlertDialog
+                open={openAlert}
+                title="Est-ce que tu veux supprimer cet ingrédient ?"
+                description="Cette action est irréversible"
+                onClose={handleClose}
+                onValidate={onDelete}
+                onCancel={handleClose}
+            />
             <header className="header-ingredients">
                 <div className="search-input">
                     <SearchIcon className="search-icon" />
                     <input type="text" placeholder="Search" />
                 </div>
                 {isLongPressing ? (
-                    <IconButton className="del-btn">
+                    <IconButton className="del-btn" onClick={handleClickOpen}>
                         <DeleteIcon fontSize="large" className="del-icon" />
                     </IconButton>
                 ) : (
-                    <IconButton
-                        onClick={() => navigate(`${location.pathname}/new`)}
-                        className="add-btn"
-                    >
+                    <IconButton onClick={() => setOpenNewIngredient(true)} className="add-btn">
                         <AddIcon fontSize="large" className="add-icon" />
                     </IconButton>
                 )}
             </header>
-            {ingredientId && <h2 className="ingredient-name">Oeuf</h2>}
             <List className="ingredients-list">
-                <ListItemButton className="ingredient-item" key="new">
-                    <ListItemAvatar
-                        onClick={() => setOpenPhotoPicker(true)}
-                        className="ingredient-image picture-picker"
-                    >
-                        {newPicture ? (
-                            <Avatar sx={{ height: '70px', width: '70px' }} src={newPicture.src} />
-                        ) : (
-                            <Avatar sx={{ height: '70px', width: '70px' }}>
-                                <AddAPhotoIcon fontSize="large" />
-                            </Avatar>
-                        )}
-                    </ListItemAvatar>
-                    <TextField
-                        variant="standard"
-                        label="Nouvelle ingredient"
-                        value={newIngredient}
-                        onChange={(e) => setNewIngredient(e.target.value)}
-                    />
-                    <FormControl className="amount-type-container">
-                        <InputLabel id="amount-type-label">Type</InputLabel>
-                        <Select
-                            value={unit}
-                            label="Type"
-                            onChange={(event) => setUnit(event.target.value as EnumIngredientUnit)}
-                        >
-                            <MenuItem value={EnumIngredientUnit.Liter}>Liquide</MenuItem>
-                            <MenuItem value={EnumIngredientUnit.Gram}>Solide</MenuItem>
-                            <MenuItem value={EnumIngredientUnit.Unit}>Unité</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <IconButton className="validate-btn" onClick={onCreateIngredient}>
-                        <CheckIcon fontSize="large" />
-                    </IconButton>
-                    <IconButton className="cancel-btn">
-                        <CloseIcon fontSize="large" />
-                    </IconButton>
-                </ListItemButton>
                 {data?.ingredients?.map((ingredient, index) => (
                     <ListItemButton
                         {...onLongPressListener}
                         selected={isLongPressing && selectedIndexies.includes(index)}
-                        className="receipe-item"
+                        className="ingredient-item"
                         data-index={index}
                     >
                         <ListItemAvatar className="ingredient-image">
@@ -203,10 +245,27 @@ const Ingredients: React.FC = () => {
                         </ListItemAvatar>
                         {ingredientId && <StarIcon className="favorite" />}
                         <ListItemText className="ingredient-title" primary={ingredient?.name} />
-                        <p className="ingredient-price">5€</p>
                     </ListItemButton>
                 ))}
             </List>
+            <Snackbar
+                open={Boolean(deleteIngredients.data)}
+                autoHideDuration={6000}
+                onClose={handleClose}
+            >
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    Suppression réussie
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={Boolean(deleteIngredients.error)}
+                autoHideDuration={6000}
+                onClose={handleClose}
+            >
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    Suppression échouée
+                </Alert>
+            </Snackbar>
         </StyledIngredients>
     );
 };

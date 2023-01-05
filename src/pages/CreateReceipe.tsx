@@ -6,19 +6,13 @@ import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import { IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import StyledCreateReceipe from './styles/CreateReceipe';
-import AvatarImage from '../assets/img/img-avatar.png';
-import AddIngredient, { Ingredient } from './AddIngredient';
-
-const data = {
-    title: 'Tortilla de patatas',
-    img: AvatarImage,
-    ingredients: [],
-};
+import AddIngredient from './AddIngredient';
+import { ReceipeEntry } from '../generated/graphql';
 
 const CreateReceipe: React.FC = () => {
     const [title, setTitle] = React.useState('');
     const [img, setImg] = React.useState('');
-    const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
+    const [receipeEntries, setReceipeEntries] = React.useState<ReceipeEntry[]>([]);
     const [open, setOpen] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
     const navigate = useNavigate();
@@ -64,22 +58,22 @@ const CreateReceipe: React.FC = () => {
             </header>
             <div className="receipe-ingredients">
                 <ul className="ingredient-list">
-                    {ingredients.map((ingredient, index) => (
+                    {receipeEntries.map((entry, index) => (
                         <li className="ingredient-item" key={index}>
                             <div className="ingredient-label">
                                 <img
                                     className="ingredient-image"
-                                    src={ingredient.img}
-                                    alt={ingredient.name}
+                                    src={entry?.ingredient?.image?.url}
+                                    alt={entry?.ingredient?.name}
                                 />
-                                <p className="ingredient-name">{ingredient.name}</p>
+                                <p className="ingredient-name">{entry?.ingredient?.name}</p>
                             </div>
                             <div className="ingredient-amount">
-                                <span className="ingredient-number">{ingredient.amount}</span>
-                                <span className="ingredient-unit">{ingredient.unit}</span>
+                                <span className="ingredient-number">{entry?.quantity}</span>
+                                <span className="ingredient-unit">{entry?.ingredient?.unit}</span>
                             </div>
                             <div className="ingredient-price">
-                                <span>{ingredient.price}</span>
+                                <span>0</span>
                                 <span>€</span>
                             </div>
                         </li>
@@ -99,11 +93,9 @@ const CreateReceipe: React.FC = () => {
             </div>
             <AddIngredient
                 open={open}
-                handleClose={() => setOpen(false)}
-                handleBack={handleBack}
-                handleNext={handleNext}
-                activeStep={activeStep}
-                ingredients={ingredients}
+                onClose={() => setOpen(false)}
+                receipeEntries={receipeEntries}
+                onFinished={(values) => console.log(values)}
             />
         </StyledCreateReceipe>
     );

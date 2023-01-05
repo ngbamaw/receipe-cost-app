@@ -4,12 +4,14 @@ import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import { FormControl, IconButton, MenuItem, Select, TextField } from '@mui/material';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import * as Yup from 'yup';
 import StyledEditProduct from './styles/EditProduct';
 import {
     Product,
     useBrandsQuery,
     useCreateProductMutation,
+    useIngredientQuery,
     useProductQuery,
     useStoresQuery,
     useUpdateProductMutation,
@@ -18,6 +20,7 @@ import { Field, Formik } from 'formik';
 import PicturePicker, { Picture } from './PicturePicker';
 import { convertUnit, getUrlForImage, useUploadMutation } from '../utils';
 import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 
 const emptyProduct: Partial<Product> = {
     id: '',
@@ -27,6 +30,12 @@ const emptyProduct: Partial<Product> = {
     quantity: 0,
 };
 
+const ProductSchema = Yup.object().shape({
+    brand: Yup.object().required('Brand is required'),
+    store: Yup.object().required('Store is required'),
+    price: Yup.number().required('Price is required'),
+    quantity: Yup.number().required('Quantity is required'),
+});
 const EditProduct: React.FC = () => {
     const [openPhotoPicker, setOpenPhotoPicker] = React.useState(false);
     const [newPicture, setNewPicture] = React.useState<Picture>();
@@ -36,6 +45,10 @@ const EditProduct: React.FC = () => {
         { id: productId as string },
         { enabled: Boolean(productId) },
     );
+    const { data: dataIngredient } = useIngredientQuery(
+        { id: ingredientId as string },
+        { enabled: !Boolean(productId) },
+    );
     const { data: dataStores } = useStoresQuery();
     const { data: dataBrands } = useBrandsQuery();
     const updateProduct = useUpdateProductMutation();
@@ -43,6 +56,7 @@ const EditProduct: React.FC = () => {
     const upload = useUploadMutation();
 
     const onSubmit = async (values: Partial<Product>) => {
+        console.log(values);
         let image;
         if (newPicture) {
             image = await upload.mutateAsync({ file: newPicture.file });
@@ -83,11 +97,20 @@ const EditProduct: React.FC = () => {
     const onPicture = async (picture: Picture) => {
         setNewPicture(picture);
     };
-    const initialValues = (dataProduct?.product || emptyProduct) as Product;
+    const initialValues = (dataProduct?.product || {
+        ...emptyProduct,
+        ingredient: dataIngredient?.ingredient,
+    }) as Product;
     return (
-        <Formik initialValues={initialValues} onSubmit={onSubmit} enableReinitialize>
-            {({ values }) => (
+        <Formik
+            initialValues={initialValues}
+            validationSchema={ProductSchema}
+            onSubmit={onSubmit}
+            enableReinitialize
+        >
+            {({ values, errors }) => (
                 <StyledEditProduct>
+                    {console.log({ errors })}
                     <PicturePicker
                         onPicture={onPicture}
                         open={openPhotoPicker}
@@ -128,8 +151,17 @@ const EditProduct: React.FC = () => {
                         {dataBrands && (
                             <Field name="brand.id">
                                 {({ field }: any) => (
-                                    <FormControl className="amount-type-container">
-                                        <Select label="Type" variant="standard" {...field}>
+                                    <FormControl
+                                        sx={{ minWidth: 80 }}
+                                        className="amount-type-container"
+                                        error={Boolean(field.error)}
+                                    >
+                                        <Select
+                                            autoWidth
+                                            label="Type"
+                                            variant="standard"
+                                            {...field}
+                                        >
                                             {dataBrands?.brands?.map((brand) => (
                                                 <MenuItem key={brand?.id} value={brand?.id}>
                                                     {brand?.name}
@@ -148,7 +180,17 @@ const EditProduct: React.FC = () => {
                         <p className="info-label">Prix :</p>
                         <Field name="price">
                             {({ field }: any) => (
-                                <TextField {...field} className="info-value" variant="standard" />
+                                <TextField
+                                    {...field}
+                                    onChange={(e) => {
+                                        if (e.target.validity.valid) field.onChange(e);
+                                    }}
+                                    inputProps={{
+                                        pattern: '\\d+(.)?(\\d{1,2})?',
+                                    }}
+                                    className="info-value"
+                                    variant="standard"
+                                />
                             )}
                         </Field>
                         <p className="info-value">€</p>
@@ -158,7 +200,11 @@ const EditProduct: React.FC = () => {
                         {dataStores && (
                             <Field name="store.id">
                                 {({ field }: any) => (
-                                    <FormControl className="amount-type-container">
+                                    <FormControl
+                                        sx={{ minWidth: 80 }}
+                                        className="amount-type-container"
+                                        error={Boolean(field.error)}
+                                    >
                                         <Select label="Type" variant="standard" {...field}>
                                             {dataStores?.stores?.map((store) => (
                                                 <MenuItem key={store?.id} value={store?.id}>
@@ -178,7 +224,17 @@ const EditProduct: React.FC = () => {
                         <p className="info-label">Quantité :</p>
                         <Field name="quantity">
                             {({ field }: any) => (
-                                <TextField {...field} className="info-value" variant="standard" />
+                                <TextField
+                                    {...field}
+                                    onChange={(e) => {
+                                        if (e.target.validity.valid) field.onChange(e);
+                                    }}
+                                    inputProps={{
+                                        pattern: '\\d+(.)?(\\d{1,2})?',
+                                    }}
+                                    className="info-value"
+                                    variant="standard"
+                                />
                             )}
                         </Field>
                         {convertUnit(values.ingredient?.unit)}
@@ -187,6 +243,9 @@ const EditProduct: React.FC = () => {
                     <div className="btns-action">
                         <IconButton className="validate-btn" type="submit">
                             <CheckIcon className="validate-icon" fontSize="large" />
+                        </IconButton>
+                        <IconButton className="cancel-btn" type="button">
+                            <CloseIcon className="cancel0-icon" fontSize="large" />
                         </IconButton>
                     </div>
                 </StyledEditProduct>

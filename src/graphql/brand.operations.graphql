@@ -1,0 +1,35 @@
+query brands {
+    brands {
+        id
+        name
+    }
+}
+query stores {
+    stores {
+        id
+        name
+    }
+}
+mutation createBrand($data: createBrandInput) {
+    createBrand(input: $data) {
+        brand {
+            id
+            name
+        }
+    }
+}
+mutation updateBrand($data: updateBrandInput) {
+    updateBrand(input: $data) {
+        brand {
+            id
+            name
+        }
+    }
+}
+mutation deleteBrand($id: ID!) {
+    deleteBrand(input: { where: { id: $id } }) {
+        brand {
+            id
+        }
+    }
+}

@@ -1,0 +1,76 @@
+query ingredients {
+    ingredients {
+        id
+        name
+        unit
+        image {
+            url
+        }
+    }
+}
+query ingredient($id: ID!) {
+    ingredient(id: $id) {
+        id
+        name
+        image {
+            id
+            url
+        }
+        unit
+        products {
+            id
+            price
+            quantity
+            favorite
+            image {
+                id
+                url
+            }
+            brand {
+                name
+            }
+        }
+    }
+}
+
+mutation createIngredient($input: createIngredientInput) {
+    createIngredient(input: $input) {
+        ingredient {
+            id
+            name
+        }
+    }
+}
+
+mutation deleteIngredient($id: ID!) {
+    deleteIngredient(input: { where: { id: $id } }) {
+        ingredient {
+            id
+        }
+    }
+}
+mutation updateIngredient($input: updateIngredientInput) {
+    updateIngredient(input: $input) {
+        ingredient {
+            id
+            name
+            unit
+            image {
+                url
+            }
+            products {
+                id
+                price
+                quantity
+                favorite
+                image {
+                    id
+                    url
+                }
+                brand {
+                    name
+                }
+            }
+        }
+    }
+}

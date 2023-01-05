@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
-const Receipes = styled.div`
+const Ingredients = styled.div`
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
     .header-ingredients {
         display: flex;
         align-items: center;
@@ -45,16 +46,37 @@ const Receipes = styled.div`
         padding: 24px;
         color: #9c9c9c;
     }
+    .MuiInputLabel-formControl {
+        font-weight: bold;
+        color: #cecece;
+    }
+    .Mui-focused {
+        color: #ff7a00;
+    }
+    .MuiInput-underline:after {
+        border-bottom: 2px solid #ff7a00;
+    }
+    .amount-type-container {
+        width: 100px;
+        .MuiOutlinedInput-root {
+            border-radius: 15px;
+        }
+    }
+    .amount-value {
+        width: 100px;
+        margin-right: 12px;
+    }
+    .ingredient-image.picture-picker {
+        margin-right: 18px;
+    }
     .ingredients-list {
-        max-height: 50%;
         overflow-y: auto;
         .ingredient-item {
             &.Mui-selected {
                 background-color: #ff7a00;
             }
-            .favorite {
-                margin: 0 10px;
-                color: #ff7a00;
+            .ingredient-image {
+                margin-right: 12px;
             }
             .ingredient-title {
                 span {
@@ -68,4 +90,4 @@ const Receipes = styled.div`
     }
 `;
 
-export default Receipes;
+export default Ingredients;

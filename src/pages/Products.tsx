@@ -266,9 +266,13 @@ const Products: React.FC = () => {
                                 src={getUrlForImage(product?.image?.url)}
                             />
                         </ListItemAvatar>
-                        {product?.favorite && <StarIcon className="favorite" />}
+                        {product?.favorite ? (
+                            <StarIcon className="favorite" />
+                        ) : (
+                            <div className="space-favorite" />
+                        )}
                         <ListItemText className="product-title" primary={product?.brand?.name} />
-                        <p className="product-price">{product?.price}€</p>
+                        <p className="product-price">{product?.price?.toFixed(2)}€</p>
                     </ListItemButton>
                 ))}
             </List>

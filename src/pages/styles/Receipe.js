@@ -53,6 +53,9 @@ export const Receipe = styled.div`
                     font-weight: normal;
                     font-size: 14px;
                     line-height: 21px;
+                    .ingredient-name {
+                        width: 100px;
+                    }
                     .ingredient-image {
                         width: 55px;
                         height: 50px;

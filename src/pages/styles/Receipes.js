@@ -3,6 +3,8 @@ import styled from 'styled-components';
 const Receipes = styled.div`
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
     .header-receipes {
         display: flex;
         align-items: center;
@@ -39,7 +41,6 @@ const Receipes = styled.div`
     }
 
     .receipes-list {
-        max-height: 50%;
         overflow-y: auto;
         .receipe-item {
             &.Mui-selected {

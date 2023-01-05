@@ -14,26 +14,11 @@ query receipes {
     }
 }
 
-query ingredients {
-    ingredients {
-        id
-        name
-        image {
+mutation receipeEntries($input: createReceipeEntryInput) {
+    createReceipeEntry(input: $input) {
+        receipeEntry {
             id
-            url
         }
-        unit
-        products(where: { favorite: true }) {
-            id
-            price
-            quantity
-        }
-    }
-}
-
-mutation upload($file: Upload!) {
-    upload(file: $file) {
-        url
     }
 }
 
@@ -59,16 +44,9 @@ mutation deleteReceipe($id: ID!) {
         }
     }
 }
-mutation deleteIngredient($id: ID!) {
-    deleteIngredient(input: { where: { id: $id } }) {
-        ingredient {
-            id
-        }
-    }
-}
-mutation deleteProduct($id: ID!) {
-    deleteProduct(input: { where: { id: $id } }) {
-        product {
+mutation deleteReceipeEntry($id: ID!) {
+    deleteReceipeEntry(input: { where: { id: $id } }) {
+        receipeEntry {
             id
         }
     }

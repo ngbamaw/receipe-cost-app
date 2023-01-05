@@ -5,7 +5,7 @@ import { IconButton } from '@mui/material';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import StyledProduct from './styles/Product';
 import { useProductQuery } from '../generated/graphql';
-import { getUrlForImage } from '../utils';
+import { convertUnit, getUrlForImage } from '../utils';
 
 const Product: React.FC = () => {
     const navigate = useNavigate();
@@ -40,7 +40,10 @@ const Product: React.FC = () => {
             </div>
             <div className="info">
                 <p className="info-label">Quantité :</p>
-                <p className="info-value">{data?.product?.quantity}</p>
+                <p className="info-value">
+                    {data?.product?.quantity}
+                    {convertUnit(data?.product?.ingredient?.unit)}
+                </p>
             </div>
 
             <IconButton onClick={() => navigate(`${location.pathname}/edit`)} className="edit-btn">

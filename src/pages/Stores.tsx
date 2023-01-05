@@ -252,7 +252,7 @@ const Stores: React.FC = () => {
                 onClose={() => setOpenNewStore(false)}
                 value=""
                 editMode={true}
-                onCancel={() => setEditMode(false)}
+                onCancel={() => setOpenNewStore(false)}
                 onValidate={onCreateStore}
             />
 

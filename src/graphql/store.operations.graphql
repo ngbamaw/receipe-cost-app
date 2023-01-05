@@ -1,0 +1,29 @@
+query stores {
+    stores {
+        id
+        name
+    }
+}
+mutation createStore($data: createStoreInput) {
+    createStore(input: $data) {
+        store {
+            id
+            name
+        }
+    }
+}
+mutation updateStore($data: updateStoreInput) {
+    updateStore(input: $data) {
+        store {
+            id
+            name
+        }
+    }
+}
+mutation deleteStore($id: ID!) {
+    deleteStore(input: { where: { id: $id } }) {
+        store {
+            id
+        }
+    }
+}

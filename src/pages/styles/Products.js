@@ -77,12 +77,19 @@ const Products = styled.div`
     .product-list {
         overflow-y: auto;
         .product-item {
-            &.Mui-selected {
-                background-color: #ff7a00;
-            }
             .favorite {
                 margin: 0 10px;
                 color: #ff7a00;
+            }
+            .space-favorite {
+                margin: 0 10px;
+                width: 24px;
+            }
+            &.Mui-selected {
+                background-color: #ff7a00;
+                .favorite {
+                    color: white;
+                }
             }
             .product-title {
                 span {

@@ -26,7 +26,9 @@ const Layout = styled.div`
             text-align: center;
             .icon-menu {
                 max-width: 70px;
+                max-height: 50px;
                 margin: auto;
+                margin-bottom: 12px;
             }
         }
 

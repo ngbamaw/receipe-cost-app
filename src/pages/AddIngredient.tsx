@@ -2,13 +2,30 @@ import React from 'react';
 import MobileStepper from '@mui/material/MobileStepper';
 import ArrowBack from '@mui/icons-material/ArrowBackIos';
 import ArrowForward from '@mui/icons-material/ArrowForwardIos';
-import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import {
+    Avatar,
+    FormControl,
+    IconButton,
+    InputLabel,
+    List,
+    ListItemAvatar,
+    ListItemButton,
+    ListItemText,
+    MenuItem,
+    Select,
+    TextField,
+} from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import SwipeableViews from 'react-swipeable-views';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
-import { AddIngredientSection } from './styles/Receipe';
-import { Ingredient, ReceipeEntry, useIngredientsQuery } from '../generated/graphql';
+import { AddIngredientSection } from './styles/AddIngredient';
+import {
+    EnumIngredientUnit,
+    Ingredient,
+    ReceipeEntry,
+    useIngredientsQuery,
+} from '../generated/graphql';
 import { getUrlForImage } from '../utils';
 
 const Transition = React.forwardRef(function Transition(
@@ -19,7 +36,11 @@ const Transition = React.forwardRef(function Transition(
 ) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
-
+const typeQuantity = {
+    [EnumIngredientUnit.Gram]: ['g'],
+    [EnumIngredientUnit.Liter]: ['L'],
+    [EnumIngredientUnit.Unit]: [],
+};
 interface Result {
     ingredient: Ingredient;
     quantity: number;
@@ -43,7 +64,7 @@ const AddIngredient: React.FC<IAddIngredientProps> = ({
     const [openInternal, setOpenInternal] = React.useState(false);
     const [activeStep, setActiveStepInternal] = React.useState(0);
     const [selectedIngredient, setSelectedIngredient] = React.useState<number>(-1);
-    const [quantity, setQuantity] = React.useState<number>(0);
+    const [quantity, setQuantity] = React.useState<string>('0');
     const numberOfStep = 2;
 
     const handleNext = () => {
@@ -63,52 +84,70 @@ const AddIngredient: React.FC<IAddIngredientProps> = ({
 
     React.useEffect(() => {
         if (activeStep === -1 || activeStep === numberOfStep) {
-            setOpenInternal(false);
+            onClose?.();
             setActiveStepInternal(0);
-            if (activeStep === numberOfStep)
+            setSelectedIngredient(-1);
+            if (activeStep === numberOfStep) {
                 onFinished({
                     ingredient: ingredients?.[selectedIngredient] as Ingredient,
-                    quantity,
+                    quantity: Number(quantity),
                 });
+            }
         }
-    }, [activeStep, selectedIngredient, quantity, ingredients, onFinished]);
+    }, [activeStep, selectedIngredient, quantity, ingredients, onFinished, onClose]);
 
     React.useEffect(() => {
         setOpenInternal(open);
     }, [open]);
+
+    React.useEffect(() => {
+        if (selectedIngredient > -1) {
+            setActiveStepInternal(1);
+        } else {
+            setActiveStepInternal(0);
+        }
+    }, [selectedIngredient]);
 
     return (
         <Dialog fullScreen open={openInternal} onClose={onClose} TransitionComponent={Transition}>
             <AddIngredientSection>
                 <SwipeableViews className="swiper" index={activeStep}>
                     <div className="step-1">
-                        <ul className="ingredient-list">
+                        <List className="ingredient-list">
                             {ingredients?.map((ingredient, index) => (
-                                <li
+                                <ListItemButton
                                     className="ingredient-item"
                                     onClick={() => setSelectedIngredient(index)}
                                     key={index}
                                 >
-                                    <div className="ingredient-label">
-                                        <img
-                                            className="ingredient-image"
-                                            src={getUrlForImage(ingredient?.image?.url)}
-                                            alt={ingredient?.name}
-                                        />
-                                        <p className="ingredient-name">{ingredient?.name}</p>
-                                    </div>
-                                </li>
+                                    <ListItemAvatar className="ingredient-image">
+                                        <Avatar src={getUrlForImage(ingredient?.image?.url)} />
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        className="ingredient-name"
+                                        primary={ingredient?.name}
+                                    />
+                                </ListItemButton>
                             ))}
-                        </ul>
+                        </List>
                     </div>
-                    <div className="step-3">
-                        <TextField className="amount-value" label="Quantité" variant="standard" />
+                    <div className="step-2">
+                        <TextField
+                            className="amount-value"
+                            label="Quantité"
+                            variant="standard"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                        />
                         <FormControl className="amount-type-container">
                             <InputLabel id="amount-type-label">Qte.</InputLabel>
                             <Select labelId="amount-type-label" id="amount-type" label="Qte.">
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                                {typeQuantity[
+                                    ingredients?.[selectedIngredient]?.unit ||
+                                        EnumIngredientUnit.Unit
+                                ].map((unit) => (
+                                    <MenuItem value={unit}>{unit}</MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </div>
